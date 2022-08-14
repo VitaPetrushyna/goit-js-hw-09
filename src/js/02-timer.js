@@ -38,6 +38,7 @@ refs.minutes.style.color = 'red';
 refs.seconds.style.color = 'red';
 
 refs.startButton.disabled = true;
+let timer = null;
 
 // date picker
 
@@ -47,33 +48,39 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    const currenDate = new Date();
-    if (selectedDates[0] <= currenDate) {
+    if (selectedDates[0] <= new Date()) {
       Notiflix.Notify.failure('Please choose a date in the future');
       refs.startButton.disabled = true;
     } else {
       refs.startButton.disabled = false;
-      refs.startButton.addEventListener('click', onCountdownTime);
+      refs.startButton.addEventListener('click', onCountdownTime());
     }
   },
 };
 
-// countdown
-
 function onCountdownTime() {
-  const timer = setInterval(() => {
-    const startTime = new Date(refs.datePicker.value).getTime();
+  timer = setInterval(() => {
+    refs.startButton.disabled = true;
+
+    const chooseTime = new Date(refs.datePicker.value).getTime();
 
     const currentTime = new Date().getTime();
-    const deltaTime = currentTime - startTime;
+    const deltaTime = chooseTime - currentTime;
     const { days, hours, minutes, seconds } = convertMs(deltaTime);
 
-    refs.days.innerHTML = days;
-    refs.hours.innerHTML = hours;
-    refs.minutes.innerHTML = minutes;
-    refs.seconds.innerHTML = seconds;
+    refs.days.textContent = `${days}`;
+    refs.hours.textContent = `${hours}`;
+    refs.minutes.textContent = `${minutes}`;
+    refs.seconds.textContent = `${seconds}`;
+
+    if (deltaTime <= 1000) {
+      clearInterval(timer);
+      startButton.disabled = false;
+    }
   }, 1000);
 }
+
+// countdown
 
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
